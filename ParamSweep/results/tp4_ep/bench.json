@@ -1,0 +1,26 @@
+{
+  "base_url": "http://127.0.0.1:8097",
+  "decode1": {
+    "output_tokens": 1024,
+    "ttft_s": 0.545,
+    "total_s": 6.59,
+    "decode_tok_s": 169.2
+  },
+  "decode3": {
+    "total_output_tokens": 1200,
+    "elapsed_s": 8.781,
+    "aggregate_tok_s": 136.7,
+    "per_stream_tok_s": 45.6
+  },
+  "prefill": {
+    "prompt_tokens": 4096,
+    "ttft_s": 0.692,
+    "prefill_tok_s": 5920.3
+  },
+  "conc16": {
+    "concurrency": 16,
+    "total_output_tokens": 4096,
+    "elapsed_s": 8.652,
+    "aggregate_tok_s": 473.4
+  }
+}

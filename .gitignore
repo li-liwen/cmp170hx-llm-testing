@@ -1,0 +1,9 @@
+# Runtime artifacts — never commit
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+tmp/
+!ParamSweep/results/**/*.log
+!ParamSweep/results/**/*.err

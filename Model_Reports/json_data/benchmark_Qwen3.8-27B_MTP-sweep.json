@@ -1,0 +1,12 @@
+{
+  "model": "qwen3.8-27b",
+  "hardware": "2xCMP 170HX (GA100 sm_80, unlocked 64GB)",
+  "date": "2026-08-31",
+  "method": "single non-streaming /chat/completions, 67-token prompt, 1024 output tokens, temperature 0",
+  "results": [
+    {"config": "PP2 no-MTP", "decode_tok_s": 25.7, "vs_pp2_baseline": 1.0, "run_values": [25.7]},
+    {"config": "TP2 MTP1", "decode_tok_s": 33.0, "vs_pp2_baseline": 1.28, "run_values": [34.1, 32.0], "acceptance": {"pos0": 0.772}},
+    {"config": "TP2 MTP2", "decode_tok_s": 44.8, "vs_pp2_baseline": 1.74, "run_values": [45.2, 44.5], "acceptance": {"pos0": 0.745, "pos1": 0.47, "overall": 0.607}},
+    {"config": "TP2 MTP3", "decode_tok_s": 47.8, "vs_pp2_baseline": 1.86, "run_values": [47.8, 47.9], "acceptance": {"pos0": 0.75, "pos1": 0.488, "pos2": 0.297, "overall": 0.512}}
+  ]
+}
