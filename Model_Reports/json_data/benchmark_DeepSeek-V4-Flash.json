@@ -3,7 +3,7 @@
   "hardware": "4xCMP 170HX (GA100 sm_80, unlocked 64GB)",
   "date": "2026-08-17",
   "run_config": {
-    "image": "dsv4-a100:devel",
+    "image": "patched vLLM image",
     "pipeline_parallel_size": 4,
     "kv_cache_dtype": "fp8",
     "block_size": 256,
@@ -17,7 +17,7 @@
     "speculative_method": "dspark",
     "num_speculative_tokens": 5,
     "env": {
-      "NVIDIA_VISIBLE_DEVICES": "0,1,2,3",
+      "NVIDIA_VISIBLE_DEVICES": "4 GPU IDs",
       "DSV4_LOGITS_ROW_CHUNK": 64,
       "VLLM_PP_LAYER_PARTITION": "12,12,12,7",
       "VLLM_WORKER_MULTIPROC_METHOD": "spawn"

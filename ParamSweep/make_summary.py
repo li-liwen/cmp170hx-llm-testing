@@ -30,6 +30,6 @@ for cfg, st, d1, d3, pf, c16 in ROWS:
     lines.append(f"| {cfg} | {st} | {d1} | {d3} | {pf} | {c16} |")
 lines.append("")
 lines.append("Method: `sweep_bench.py` (see ParamSweep README). pp4_prod = read-only")
-lines.append("benchmark of the production PP4 server on cards 0-3.")
+lines.append("benchmark of an existing PP4 server on a separate GPU group.")
 open("results/SUMMARY.md", "w").write("\n".join(lines) + "\n")
 print("\n".join(lines))

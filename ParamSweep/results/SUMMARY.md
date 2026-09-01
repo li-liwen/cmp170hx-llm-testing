@@ -9,4 +9,4 @@
 | tp4_ep | ok | 169.2 | 136.7 | 5920.3 | 473.4 |
 
 Method: `sweep_bench.py` (see ParamSweep README). pp4_prod = read-only
-benchmark of the production PP4 server on cards 0-3.
+benchmark of an existing PP4 server on a separate GPU group.

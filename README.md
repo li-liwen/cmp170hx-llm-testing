@@ -17,16 +17,16 @@ x16 links. Details: [`CMP170HX Hardware and Deployment.md`](CMP170HX%20Hardware%
 * 8x NVIDIA CMP 170HX (GA100 sm_80, 64 GB unlocked each, PCIe Gen2 x16)
 * 2x Intel Xeon E5-2683 v4 (2 NUMA nodes), 251 GB RAM
 * AlmaLinux 10.2 / kernel 6.12, driver 610.43.02
-* vLLM patched fork (`dsv4-a100:devel` image)
+* vLLM patched fork (local image)
 
 ## Models & results
 
-| Model | Cards | Config | Headline numbers | Report |
+| Model | GPUs | Config | Headline numbers | Report |
 |---|---|---|---|---|
-| **DeepSeek-V4-Flash-0731** (~284B/13B MoE) | 4 (0-3) | PP=4 + DSpark n=5, 1M ctx | 109.7 tok/s decode aggregate; 5,440 tok/s prefill @50k; needle PASS to 700k | [`Model_Reports/benchmark_DeepSeek-V4-Flash.md`](Model_Reports/benchmark_DeepSeek-V4-Flash.md) |
-| **Qwen3.8-27B** (dense 27B, hybrid linear-attn, VLM) | 2 (4-5) | TP=2 + MTP n=3, 262k ctx | ~48 tok/s single-stream decode; full TTFT/TPOT/concurrency in report | [`Model_Reports/benchmark_Qwen3.8-27B.md`](Model_Reports/benchmark_Qwen3.8-27B.md) |
-| Qwen3.8-27B parallelism sweep | 2 (4-5) | PP2 / TP2+MTP n=1..3 | MTP n=3 = 1.86x PP2 decode | [`Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md`](Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md) |
-| **DeepSeek-V4-Flash parallel sweep** | 4 (4-7) | PP4 / TP4 / TP4+EP / TP2+PP2 | PP4 best; TP4 ≈ PP4 single-stream but worse aggregate; EP=MegaMoE is SM100-only; DSpark+TP+PP fails | [`Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md`](Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md) |
+| **DeepSeek-V4-Flash-0731** (~284B/13B MoE) | 4 | PP=4 + DSpark n=5, 1M ctx | 109.7 tok/s decode aggregate; 5,440 tok/s prefill @50k; needle PASS to 700k | [`Model_Reports/benchmark_DeepSeek-V4-Flash.md`](Model_Reports/benchmark_DeepSeek-V4-Flash.md) |
+| **Qwen3.8-27B** (dense 27B, hybrid linear-attn, VLM) | 2 | TP=2 + MTP n=3, 262k ctx | ~48 tok/s single-stream decode; full TTFT/TPOT/concurrency in report | [`Model_Reports/benchmark_Qwen3.8-27B.md`](Model_Reports/benchmark_Qwen3.8-27B.md) |
+| Qwen3.8-27B parallelism sweep | 2 | PP2 / TP2+MTP n=1..3 | MTP n=3 = 1.86x PP2 decode | [`Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md`](Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md) |
+| **DeepSeek-V4-Flash parallel sweep** | 4 | PP4 / TP4 / TP4+EP / TP2+PP2 | PP4 best; TP4 ≈ PP4 single-stream but worse aggregate; EP=MegaMoE is SM100-only; DSpark+TP+PP fails | [`Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md`](Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md) |
 
 Raw structured data: [`Model_Reports/json_data/`](Model_Reports/json_data/).
 
@@ -44,8 +44,9 @@ Raw structured data: [`Model_Reports/json_data/`](Model_Reports/json_data/).
 * Qwen3.8 reasoning effort: `xhigh` / `medium` / `low` (and `none` = no
   thinking). `high` is **invalid** and errors — important when wiring into proxies
   (e.g. LiteLLM/OpenWebUI) that send OpenAI-style `high`.
-* The two GPU groups perform differently: identical PP4 is 20-55% slower on cards
-  4-7 than on cards 0-3 (different PCIe root complexes / NUMA nodes).
+* The GPU groups on our rig perform differently: identical PP4 ran 20-55% slower
+  on one group than on another (different PCIe root complexes / NUMA nodes —
+  topology, not engine config). Expect position-dependent results.
 
 ## Benchmark harness
 

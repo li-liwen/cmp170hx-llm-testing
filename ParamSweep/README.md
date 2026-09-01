@@ -1,8 +1,8 @@
 # DeepSeek-V4-Flash parameter sweep on CMP 170HX
 
-Compares DeepSeek-V4-Flash-0731 parallelism configurations on **4 free cards**
-(GPU IDs 4-7) using the same `dsv4-a100:devel` vLLM fork that runs the
-production deployment on cards 0-3.
+Compares DeepSeek-V4-Flash-0731 parallelism configurations on a free GPU group,
+optionally with a read-only reference run against an existing deployment on a separate
+GPU group.
 
 ## Configurations
 
@@ -18,17 +18,18 @@ production deployment on cards 0-3.
 Common: `--max-model-len 1048576`, `DSV4_LOGITS_ROW_CHUNK=64`, fp8 KV cache,
 DSpark spec decode n=5, `--gpu-memory-utilization 0.9`.
 
-A read-only reference pass (`results/pp4_prod/`) benchmarks the production PP4
-server on cards 0-3 with the *same* client so all numbers are directly comparable.
+A read-only reference pass (`results/pp4_prod/`) benchmarks an existing PP4
+server on a different GPU group with the *same* client so all numbers are directly
+comparable.
 
 ## How to run
 
 ```bash
-# reference (read-only) on the production server:
-VLLM_API_KEY=<prod key> python3 sweep_bench.py --base-url http://127.0.0.1:8098
+# reference (read-only) against an existing server:
+VLLM_API_KEY=<key> python3 sweep_bench.py --base-url http://127.0.0.1:PORT
 
-# full sweep on cards 4-7:
-sudo env VLLM_API_KEY=<key> ./sweep_all.sh
+# full sweep on your free GPUs:
+sudo env VLLM_API_KEY=<key> SWEEP_GPUS=<N GPU IDs> ./sweep_all.sh
 # results land in results/<config>/
 ```
 
@@ -47,4 +48,4 @@ Each config: launch container -> wait for `/v1/models` -> run `sweep_bench.py`
 See `results/SUMMARY.md` (assembled by `make_summary.py`) and the per-config
 JSON files.
 
-*Sweep run: 2026-08-31, cards 4-7, driver 610.43.02, AlmaLinux 10.2.*
+*Sweep run: 2026-08-31, driver 610.43.02, AlmaLinux 10.2.*

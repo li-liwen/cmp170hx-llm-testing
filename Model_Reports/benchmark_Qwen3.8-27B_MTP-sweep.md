@@ -14,7 +14,7 @@ parallelism + speculative-decoding combination is fastest at single-stream decod
 
 ## Configurations tested
 
-All on the same `dsv4-a100:devel` vLLM fork, cards 4+5, bf16 weights,
+All on the same patched vLLM fork, two GPUs, bf16 weights,
 fp8 KV cache, `--max-model-len 262144`, `--gpu-memory-utilization 0.93`.
 
 | Config | Compute layout | Spec decode |
@@ -62,4 +62,4 @@ n>1 lowers acceptance.
 
 ---
 
-*Captured 2026-08-31 on the current rig.*
+*Captured 2026-08-31.*

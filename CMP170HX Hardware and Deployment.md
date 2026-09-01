@@ -21,7 +21,7 @@ requirement.
 
 | Component | Value |
 |---|---|
-| GPU(s) | 8x NVIDIA CMP 170HX (we use two groups: 0-3 and 4-5) |
+| GPU(s) | 8x NVIDIA CMP 170HX (used as independent GPU groups) |
 | GPU VRAM | 65,536 MiB each (unlocked) |
 | GPU link | PCIe Gen2 x16 |
 | Compute capability | 8.0 |
@@ -29,7 +29,7 @@ requirement.
 | CPU | 2x Intel Xeon E5-2683 v4 (16c/32t each, 2 NUMA nodes) |
 | System RAM | 251 GB |
 | OS | AlmaLinux 10.2 / kernel 6.12 |
-| Engine | vLLM patched fork (`dsv4-a100:devel` image) |
+| Engine | vLLM patched fork (local image) |
 
 ## Why pipeline parallel (and no tensor parallel)
 
@@ -41,7 +41,7 @@ requirement.
   speculative decoding in this vLLM fork (the Qwen3.5 MTP drafter does not
   implement the pipeline-parallel interface; PP + MTP is rejected at load).
 
-## DeepSeek-V4-Flash deployment (GPUs 0-3)
+## DeepSeek-V4-Flash deployment
 
 - 4x CMP 170HX, PP=4 + DSpark speculative decoding (5 draft tokens).
 - Weights: DeepSeek-V4-Flash-0731, 155.4 GiB bf16, 48 shards.
@@ -59,11 +59,11 @@ vllm serve /model \
   --tokenizer-mode=deepseek_v4 --reasoning-parser=deepseek_v4 \
   --tool-call-parser=deepseek_v4 \
   --speculative-config='{"method":"dspark","num_speculative_tokens":5}'
-# env: NVIDIA_VISIBLE_DEVICES=0,1,2,3  VLLM_PP_LAYER_PARTITION=12,12,12,7
+# env: NVIDIA_VISIBLE_DEVICES=<4 GPU IDs>  VLLM_PP_LAYER_PARTITION=12,12,12,7
 #      DSV4_LOGITS_ROW_CHUNK=64  VLLM_WORKER_MULTIPROC_METHOD=spawn
 ```
 
-## Qwen3.8-27B deployment (GPUs 4-5)
+## Qwen3.8-27B deployment
 
 - 2x CMP 170HX, TP=2 + MTP speculative decoding (3 draft tokens — single MTP
   layer re-applied per step).
@@ -84,7 +84,7 @@ vllm serve /model \
   --enable-auto-tool-choice --tool-call-parser=qwen3_coder \
   --reasoning-parser=qwen3 \
   --speculative-config='{"method":"mtp","num_speculative_tokens":3}'
-# env: NVIDIA_VISIBLE_DEVICES=4,5  VLLM_WORKER_MULTIPROC_METHOD=spawn
+# env: NVIDIA_VISIBLE_DEVICES=<2 GPU IDs>  VLLM_WORKER_MULTIPROC_METHOD=spawn
 ```
 
 ## Reasoned-effort / thinking notes (Qwen3.8-27B)

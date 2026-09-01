@@ -1,28 +1,32 @@
 #!/usr/bin/env bash
 # =============================================================================
-# sweep_all.sh — run the full DeepSeek-V4-Flash parallelism sweep on 4 free cards.
+# sweep_all.sh — run the full DeepSeek-V4-Flash parallelism sweep on N free cards.
 #
-# Cards 0-3 are the production deployment and are NEVER used by this script unless
-# you pass PROD_REF=1 (read-only benchmarking against the already-running server).
+# The sweep GPUs come from SWEEP_GPUS (or pass a GPU list); keep them off any
+# busy deployment. Optionally also do a read-only reference measurement of an
+# already-running server via PROD_VLLM_API_KEY + PROD_PORT.
 #
 # Usage:
-#   sudo env VLLM_API_KEY=<sweep key> ./sweep_all.sh
-#   PROD_VLLM_API_KEY=<prod key> ./sweep_all.sh   # also bench prod as pp4 ref
+#   sudo env VLLM_API_KEY=<sweep key> SWEEP_GPUS=<N GPU IDs> ./sweep_all.sh
+#   PROD_VLLM_API_KEY=<key> PROD_PORT=<port> ./sweep_all.sh  # + read-only ref
 # =============================================================================
 set -uo pipefail
 cd "$(dirname "$0")"
 
-# Optional: read-only reference measurement of the running production server (cards 0-3).
+# Optional: read-only reference measurement of an existing server on a separate GPU group.
 if [ -n "${PROD_VLLM_API_KEY:-}" ]; then
-  echo "=== [reference] production PP4 (cards 0-3) — read-only bench ==="
+  PROD_PORT="${PROD_PORT:-8000}"
+  echo "=== [reference] existing PP4 server — read-only bench ==="
   mkdir -p results/pp4_prod
-  VLLM_API_KEY="${PROD_VLLM_API_KEY}" python3 sweep_bench.py --base-url http://127.0.0.1:8098 \
+  VLLM_API_KEY="${PROD_VLLM_API_KEY}" python3 sweep_bench.py --base-url "http://127.0.0.1:${PROD_PORT}" \
     > results/pp4_prod/bench.json 2> results/pp4_prod/bench.err && echo "prod ref done"
 fi
 
+: "${SWEEP_GPUS:?set SWEEP_GPUS to the GPU IDs for the sweep}"
+
 for cfg in tp4 tp4_ep tp4_ep_megamoe tp2_pp2 tp2_pp2_ep pp4; do
   sudo env VLLM_API_KEY="${VLLM_API_KEY}" MAX_MODEL_LEN="${MAX_MODEL_LEN:-1048576}" \
-    ./run_dsv4_sweep.sh "${cfg}" "${SWEEP_GPUS:-4,5,6,7}"
+    ./run_dsv4_sweep.sh "${cfg}" "${SWEEP_GPUS}"
 done
 
 echo "=== summary ==="

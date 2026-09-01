@@ -3,24 +3,26 @@
 # run_dsv4_sweep.sh — DeepSeek-V4-Flash parallelism sweep on CMP 170HX.
 #
 # Launches ONE config of the DeepSeek-V4-Flash-0731 checkpoint on a specified
-# GPU set (default: cards 4-7, staying off the production deployment on 0-3),
+# GPU set (default: $SWEEP_GPUS; keep it off any busy deployment's GPUs),
 # waits for the API to come up, runs sweep_bench.py, and tears the server down.
 #
 # Writes raw JSON + a short markdown summary per config.
 #
 # Usage:
-#   sudo env VLLM_API_KEY=<key> ./run_dsv4_sweep.sh <config> [gpus]
+#   sudo env VLLM_API_KEY=<key> SWEEP_GPUS=<N GPU IDs> ./run_dsv4_sweep.sh <config> [gpus]
 #
-# Configs: pp4 | tp4 | tp4_ep | tp4_megamoe | tp2_pp2 | tp2_pp2_ep
+# Configs: pp4 | tp4 | tp4_ep | tp4_ep_megamoe | tp2_pp2 | tp2_pp2_ep | tp2_pp2_nospec
+# Other env: MODEL_DIR (weights path, default /path/to/DeepSeek-V4-Flash-0731),
+#            IMG (vLLM image, default vllm-cmp170hx:latest), SWEEP_PORT.
 # =============================================================================
 set -uo pipefail
 
 CONFIG="${1:?usage: run_dsv4_sweep.sh <config> [gpus]}"
-GPUS="${2:-4,5,6,7}"
-PORT="${SWEEP_PORT:-8097}"
-MODEL_DIR="${MODEL_DIR:-/mnt/flash-inference/models/DeepSeek-V4-Flash-0731}"
-IMG="dsv4-a100:devel"
-CONTAINER="dsv4-sweep"
+GPUS="${2:-${SWEEP_GPUS:?set SWEEP_GPUS or pass GPU IDs as arg 2}}"
+PORT="${SWEEP_PORT:-8000}"
+MODEL_DIR="${MODEL_DIR:-/path/to/DeepSeek-V4-Flash-0731}"
+IMG="${IMG:-vllm-cmp170hx:latest}"
+CONTAINER="vllm-sweep"
 
 KEY="${VLLM_API_KEY:?VLLM_API_KEY must be set}"
 BASE="http://127.0.0.1:${PORT}"
