@@ -18,7 +18,7 @@ in the accompanying report:
 |---|---|
 | Model | **GLM-5.3-Flash**, `Glm5NextForConditionalGeneration` (45 layers: 3 dense + 42 MoE, hidden 4096, 64 heads, ~320B total / ~18B active, native VLM) |
 | Weights | **W4A16-AutoRound** INT4 checkpoint (162 GiB, 36 shards; vLLM `quantization=inc`, auto-detected from `quantization_config`) |
-| Engine | Community vLLM fork `0.8.1+glm53a800`, built as a local docker image (SM80-only CUDA extension + Triton overrides for the GLM linear-attention/KPool kernels) |
+| Engine | Community vLLM fork `0.8.1+glm53a800` ([`Mrzhiyao/glm53-a800-vllm`](https://github.com/Mrzhiyao/glm53-a800-vllm)), built as a local docker image (SM80-only CUDA extension + Triton overrides for the GLM linear-attention/KPool kernels) |
 | GPU group | 4x NVIDIA CMP 170HX (GA100 sm_80, VRAM-unlocked 65536 MiB, PCIe Gen2 x16), one NUMA/PCIe group |
 | Parallelism | **PP=4 + TP=1** (`VLLM_PP_LAYER_PARTITION=12,11,11,11`) |
 | Context | 32,768 tokens (fork supports the full 1,048,576 the checkpoint allows; 32k chosen to fit 4x 64 GiB with a KV margin of ~12 GiB) |
@@ -44,7 +44,7 @@ The fork is assembled from two upstream sources plus an SM80 build:
    is recompiled, with `TORCH_CUDA_ARCH_LIST=8.0` and version string
    `0.8.1+glm53a800`.
 
-Build flow (mirrors the upstream repo's `scripts/`):
+Build flow (mirrors the upstream [`glm53-a800-vllm`](https://github.com/Mrzhiyao/glm53-a800-vllm) repo's `scripts/`):
 
 ```bash
 # 1) fetch the baseline + integrate

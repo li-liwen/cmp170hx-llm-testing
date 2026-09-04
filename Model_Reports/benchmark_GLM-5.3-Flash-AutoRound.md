@@ -472,9 +472,9 @@ docker run -d --name <glm-container> \
 | Server args | `--max-model-len 32768 --gpu-memory-utilization 0.90 --max-num-seqs 8 --max-num-batched-tokens 8192 --reasoning-parser glm45 --tool-call-parser glm47 --enable-auto-tool-choice` |
 | Context | 32,768 tokens (KV cache 796,779 tokens; reasoning enabled by default) |
 
-**Harness:** `BenchAndReport.py` driving `vllm bench serve` (fork image), plus the glm53-a800-vllm repo's own `tests/stress_*.py` end-to-end checks. Benchmark client vLLM 0.8.1+glm53a800; report prose drafted by the served GLM-5.3-Flash model.
+**Harness:** `BenchAndReport.py` driving `vllm bench serve` (fork image), plus the [glm53-a800-vllm](https://github.com/Mrzhiyao/glm53-a800-vllm) repo's own `tests/stress_*.py` end-to-end checks. Benchmark client vLLM 0.8.1+glm53a800; report prose drafted by the served GLM-5.3-Flash model.
 
-## Appendix B — Complementary end-to-end checks (glm53-a800-vllm tests, adapted to :8101)
+## Appendix B — Complementary end-to-end checks ([glm53-a800-vllm](https://github.com/Mrzhiyao/glm53-a800-vllm) tests, adapted to :8101)
 
 All passed (HTTP 200, `finish_reason=length`):
 
