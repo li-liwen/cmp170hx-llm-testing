@@ -93,3 +93,15 @@ vllm serve /model \
   `high` is **not** valid and fails with `Unexpected reasoning effort high`.
 - `reasoning_effort: none` (or `enable_thinking: false`) disables thinking.
 - These arrive via top-level `reasoning_effort` or `chat_template_kwargs`.
+
+## GLM-5.3-Flash deployment
+
+- 4x CMP 170HX, PP=4 (TP impossible: 64 heads don't divide over 4 ranks).
+- Weights: GLM-5.3-Flash W4A16-AutoRound, 162 GiB INT4 (`quantization=inc`).
+- Max context 32,768 (fork supports the checkpoint's 1M; 32k fits 4x 64 GiB
+  with a ~12 GiB KV margin).
+- Engine is a community vLLM fork (`0.8.1+glm53a800`) built for SM80 with
+  the GLM linear-attention/KPool Triton overrides; see
+  `Model_Reports/GLM-5.3-Flash-deployment.md` for the image build and launch.
+- See `Model_Reports/benchmark_GLM-5.3-Flash-AutoRound.md` for results
+  (39.5 tok/s single-stream decode; 143.6 tok/s best aggregate).

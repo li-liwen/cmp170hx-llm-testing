@@ -27,8 +27,12 @@ x16 links. Details: [`CMP170HX Hardware and Deployment.md`](CMP170HX%20Hardware%
 | **Qwen3.8-27B** (dense 27B, hybrid linear-attn, VLM) | 2 | TP=2 + MTP n=3, 262k ctx | ~48 tok/s single-stream decode; full TTFT/TPOT/concurrency in report | [`Model_Reports/benchmark_Qwen3.8-27B.md`](Model_Reports/benchmark_Qwen3.8-27B.md) |
 | Qwen3.8-27B parallelism sweep | 2 | PP2 / TP2+MTP n=1..3 | MTP n=3 = 1.86x PP2 decode | [`Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md`](Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md) |
 | **DeepSeek-V4-Flash parallel sweep** | 4 | PP4 / TP4 / TP4+EP / TP2+PP2 | PP4 best; TP4 ≈ PP4 single-stream but worse aggregate; EP=MegaMoE is SM100-only; DSpark+TP+PP fails | [`Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md`](Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md) |
+| **GLM-5.3-Flash** (~320B/18B MoE, W4A16 AutoRound) | 4 | vLLM fork PP=4, 32k ctx (AutoRound INT4) | 39.5 tok/s single-stream decode; 143.6 tok/s best aggregate @c16; 84.6 tok/s @16k ctx | [`Model_Reports/benchmark_GLM-5.3-Flash-AutoRound.md`](Model_Reports/benchmark_GLM-5.3-Flash-AutoRound.md) |
 
 Raw structured data: [`Model_Reports/json_data/`](Model_Reports/json_data/).
+
+GLM-5.3-Flash image build + serving details:
+[`Model_Reports/GLM-5.3-Flash-deployment.md`](Model_Reports/GLM-5.3-Flash-deployment.md).
 
 ## Notable findings
 
