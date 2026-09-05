@@ -28,11 +28,15 @@ x16 links. Details: [`CMP170HX Hardware and Deployment.md`](CMP170HX%20Hardware%
 | Qwen3.8-27B parallelism sweep | 2 | PP2 / TP2+MTP n=1..3 | MTP n=3 = 1.86x PP2 decode | [`Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md`](Model_Reports/benchmark_Qwen3.8-27B_MTP-sweep.md) |
 | **DeepSeek-V4-Flash parallel sweep** | 4 | PP4 / TP4 / TP4+EP / TP2+PP2 | PP4 best; TP4 ≈ PP4 single-stream but worse aggregate; EP=MegaMoE is SM100-only; DSpark+TP+PP fails | [`Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md`](Model_Reports/benchmark_DeepSeek-V4-Flash_parallel-sweep.md) |
 | **GLM-5.3-Flash** (~320B/18B MoE, W4A16 AutoRound) | 4 | vLLM fork PP=4, 32k ctx (AutoRound INT4) | 39.5 tok/s single-stream decode; 143.6 tok/s best aggregate @c16; 84.6 tok/s @16k ctx | [`Model_Reports/benchmark_GLM-5.3-Flash-AutoRound.md`](Model_Reports/benchmark_GLM-5.3-Flash-AutoRound.md) |
+| **DeepSeek-V4-Flash-0731** on the 2nd GPU group | 4 | PP=4 + DSpark n=5, 1M ctx, fp8 KV | 7.72M-token KV; 9x1M fills stable; 4x~661k concurrent OK; KV-offload push 4.6-4.7 GB/s | [`Model_Reports/deepseek-v4-flash-cmp170hx-gpu47.md`](Model_Reports/deepseek-v4-flash-cmp170hx-gpu47.md) |
 
 Raw structured data: [`Model_Reports/json_data/`](Model_Reports/json_data/).
 
 GLM-5.3-Flash image build + serving details:
 [`Model_Reports/GLM-5.3-Flash-deployment.md`](Model_Reports/GLM-5.3-Flash-deployment.md).
+
+Known hardware faults / per-card checks for CMP 170HX units:
+[`Model_Reports/CMP170HX-GPU6-MMU-Fault.md`](Model_Reports/CMP170HX-GPU6-MMU-Fault.md).
 
 ## Notable findings
 
@@ -45,6 +49,14 @@ GLM-5.3-Flash image build + serving details:
 * The unlock's driver plus this vLLM fork enables the 1M-token context ceiling
   for DeepSeek-V4-Flash (`DSV4_LOGITS_ROW_CHUNK` fix); needle retrieval passes
   at 100k/300k/500k/700k.
+* **Per-card faults happen: see `CMP170HX-GPU6-MMU-Fault.md`** — one GPU on our
+  second group faults (Xid 31) only under GLM long-prefill with CUDA graphs
+  (eager OK, DSV4 OK, raw big allocs OK); ECC telemetry is `[N/A]` on these
+  cards. Check every card, not just one.
+* vLLM native CPU KV offload in these forks is **store-only in practice**:
+  GPU→CPU push measured 4.6-6.65 GB/s, but CPU→GPU load is never served
+  (re-requests recompute). GLM fp8 KV is unsupported on SM80 (sparse-MLA
+  backends reject it); DSV4 fp8 KV is fine.
 * Qwen3.8 reasoning effort: `xhigh` / `medium` / `low` (and `none` = no
   thinking). `high` is **invalid** and errors — important when wiring into proxies
   (e.g. LiteLLM/OpenWebUI) that send OpenAI-style `high`.
